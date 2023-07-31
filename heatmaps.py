@@ -11,20 +11,6 @@ import matplotlib.pyplot as plt
 
 plt.rcParams['text.usetex'] = True                                  # enables LaTeX
 
-# metric to sort by: name of column in excel file to sort by
-sort_via = "TAT 4 wk"
-
-# flag: primary only or primary and secondary
-primary_only = True
-
-# flag: 4 week biomarkers or 20 week biomarkers
-separate_biomarkers = True
-markers = "20"
-
-# flag: only view significant biomarkers
-significant_biomarkers_only = False
-max_pval = 0.05
-
 def display_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
                        significant_biomarkers_only: bool = False, max_pval: float | None = None) -> None:
     """
@@ -161,7 +147,7 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
 
     return
 
-def save_clustermap(sort_via: str, save_dir: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
+def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
                     significant_biomarkers_only: bool = False, max_pval: float | None = None) -> None:
     """
     Saves a clustered heatmap from the dataset
@@ -171,8 +157,6 @@ def save_clustermap(sort_via: str, save_dir: str, primary_only: bool = False, se
     ----------
     sort_via: str
         metric to sort by
-    save_dir: str
-        directory to save the image to
     primary_only: bool
         plot data from primary group only or primary and secondary groups
     separate_biomarkers: bool
@@ -187,6 +171,8 @@ def save_clustermap(sort_via: str, save_dir: str, primary_only: bool = False, se
         0 <= max_pval <= 1
     """
 
+    save_dir = f"heatmap_change{markers}wk_{''.join(sort_via.split())}" # ex: heatmap_change20wk_TAT4wk
+
     # read in our datasets
     val_df = pd.read_csv("modified_data/fold_change_no_outliers.csv")   # contains fold change data per patient and biomarker
     pval_df = pd.read_csv("modified_data/rho_pvals.csv")                # contains p-values of biomarkers per metric
@@ -194,8 +180,10 @@ def save_clustermap(sort_via: str, save_dir: str, primary_only: bool = False, se
     if(primary_only):
         val_df = val_df[val_df["in_primary"] == 1]                      # only use patients in the primary group by filtering out non-primary patients
         title_str = "Primary Group Only"
+        save_dir += "_primary"
     else:
         title_str = "Primary and Secondary Groups"
+        save_dir += "_both"
 
 
     # sort and extract relevant p-value data
@@ -207,6 +195,11 @@ def save_clustermap(sort_via: str, save_dir: str, primary_only: bool = False, se
         patient_info_df = val_df.iloc[:, 0:6]
         val_df = val_df.loc[:, biomarkers_to_keep]                      # only keep the data from the biomarkers that matched criteria
         val_df = pd.concat([patient_info_df, val_df], axis = 1)
+
+        save_dir = "figures/heatmap_significant/" + save_dir + f"_{max_pval}pval"
+
+    else:
+        save_dir = "figures/heatmap_all/" + save_dir
 
     pval_df = pval_df.sort_values(by = ["pval"])                        # sort p-vals from lowest to highest
     p_vals = pval_df["pval"]                                            # extract pd.Series of sorted p-values
@@ -293,6 +286,8 @@ def save_clustermap(sort_via: str, save_dir: str, primary_only: bool = False, se
     # add title to the figure
     clustermap.figure.suptitle(f"Biomarker Fold Change\n{title_str}", fontsize = "xx-large")
 
+    save_dir += ".png"
+
     # NOTE: this is a very bad workaround but it'll do for now
     manager = plt.get_current_fig_manager()                         # get display manager
     manager.full_screen_toggle()                                    # set the figure to be displayed on fullscreen
@@ -300,3 +295,19 @@ def save_clustermap(sort_via: str, save_dir: str, primary_only: bool = False, se
     plt.close()                                                     # immediately close the image
     clustermap.savefig(save_dir)                                    # save the image (which now has the correct dimensions)
 
+def save_all_clustermaps():
+    metrics = ["TAT 4 wk", "TAT 20 wk", "Cmax", "Cmax4"]              # possible metrics to use
+    markers = ["4", "20"]                                             # week of metrics taken
+
+    for metric in metrics:
+        for marker in markers:
+            save_clustermap(sort_via = metric, primary_only = False, separate_biomarkers = True, markers = marker,
+                            significant_biomarkers_only = False, max_pval = None)
+            save_clustermap(sort_via = metric, primary_only = True, separate_biomarkers = True, markers = marker,
+                            significant_biomarkers_only = False, max_pval = None)
+            save_clustermap(sort_via = metric, primary_only = False, separate_biomarkers = True, markers = marker,
+                            significant_biomarkers_only = True, max_pval = 0.05)
+            save_clustermap(sort_via = metric, primary_only = True, separate_biomarkers = True, markers = marker,
+                            significant_biomarkers_only = True, max_pval = 0.05)
+    
+    return
