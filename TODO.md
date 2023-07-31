@@ -1,3 +1,3 @@
-- [ ] add code to automatically save all variations
-- [ ] create graphs with only significant biomarkers (p-value < 0.05)
+- [x] add code to automatically save all variations
+- [x] create graphs with only significant biomarkers (p-value < 0.05)
 - [ ] add some lines to the correlation matrices to make it easier to see blocks of interest
