@@ -122,12 +122,13 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
                                 xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1,
                                 cbar_kws = {"label": "Fold Change"}, cbar_pos = (0.89, 0.2, 0.015, 0.6))
 
-    clustermap.ax_heatmap.set_yticklabels(clustermap.ax_heatmap.get_ymajorticklabels(), fontsize = 6)   # reduce font size of biomarkers so they don't overlap
+    if(not significant_biomarkers_only):        # reduce font size of biomarkers so they don't overlap
+        clustermap.ax_heatmap.set_yticklabels(clustermap.ax_heatmap.get_ymajorticklabels(), fontsize = 6)
 
     # plots colorbars for p-values and biomarkers onto the figure
     exposure_ax = clustermap.figure.add_axes([0.2, 0.9, 0.6, 0.025])                                # add a new axes onto the figure for the colorbar
     exposure_cbar = plt.colorbar(mappable = exposure_mapper, cax = exposure_ax,                     # create a new color bar using the mapper
-                                orientation = "horizontal", label = f"{sort_via} Exposure")        # corresponding to that colorbar
+                                 orientation = "horizontal", label = f"{sort_via} Exposure")        # corresponding to that colorbar
 
     pval_ax = clustermap.figure.add_axes([0.94, 0.525, 0.015, 0.275])
     pval_cbar = plt.colorbar(mappable = pval_mapper, cax = pval_ax,
@@ -268,12 +269,13 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
                                 xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1,
                                 cbar_kws = {"label": "Fold Change"}, cbar_pos = (0.89, 0.2, 0.015, 0.6))
 
-    clustermap.ax_heatmap.set_yticklabels(clustermap.ax_heatmap.get_ymajorticklabels(), fontsize = 6)   # reduce font size of biomarkers so they don't overlap
+    if(not significant_biomarkers_only):        # reduce font size of biomarkers so they don't overlap
+        clustermap.ax_heatmap.set_yticklabels(clustermap.ax_heatmap.get_ymajorticklabels(), fontsize = 6)   
 
     # plots colorbars for p-values and biomarkers onto the figure
     exposure_ax = clustermap.figure.add_axes([0.2, 0.9, 0.6, 0.025])                                # add a new axes onto the figure for the colorbar
     exposure_cbar = plt.colorbar(mappable = exposure_mapper, cax = exposure_ax,                     # create a new color bar using the mapper
-                                orientation = "horizontal", label = f"{sort_via} Exposure")        # corresponding to that colorbar
+                                 orientation = "horizontal", label = f"{sort_via} Exposure")        # corresponding to that colorbar
 
     pval_ax = clustermap.figure.add_axes([0.94, 0.525, 0.015, 0.275])
     pval_cbar = plt.colorbar(mappable = pval_mapper, cax = pval_ax,
@@ -296,8 +298,8 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     clustermap.savefig(save_dir)                                    # save the image (which now has the correct dimensions)
 
 def save_all_clustermaps():
-    metrics = ["TAT 4 wk", "TAT 20 wk", "Cmax", "Cmax4"]              # possible metrics to use
-    markers = ["4", "20"]                                             # week of metrics taken
+    metrics = ["TAT 4 wk", "TAT 20 wk", "Cmax", "Cmax4"]            # possible metrics to use
+    markers = ["4", "20"]                                           # week of metrics taken
 
     for metric in metrics:
         for marker in markers:
