@@ -10,11 +10,12 @@ import matplotlib.pyplot as plt
 # markers = ["4", "20"]                                             # week of metrics taken
 
 plt.rcParams['text.usetex'] = True                                  # enables LaTeX
+fold_change_path = "modified_data/fold_change_no_outliers.csv"
 
 def display_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
                        significant_biomarkers_only: bool = False, max_pval: float | None = None) -> None:
     """
-    Displays a clustered heatmap from the dataset in fullscreen
+    Displays a clustered heatmap from the dataset
     
     Parameters
     ----------
@@ -35,7 +36,7 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     """
 
     # read in our datasets
-    val_df = pd.read_csv("modified_data/fold_change_no_outliers.csv")   # contains fold change data per patient and biomarker
+    val_df = pd.read_csv(fold_change_path)                              # contains fold change data per patient and biomarker
     pval_df = pd.read_csv("modified_data/rho_pvals.csv")                # contains p-values of biomarkers per metric
 
     if(primary_only):
@@ -119,40 +120,36 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     # NOTE: scipy must be installed for sns.clustermap to work
     clustermap = sns.clustermap(df_plot, metric = "seuclidean", row_cluster = True, col_cluster = False, linewidth = 0.5,
                                 row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "seismic",
-                                xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1,
-                                cbar_kws = {"label": "Fold Change"}, cbar_pos = (0.89, 0.2, 0.015, 0.6))
+                                xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1, figsize=(20, 12),
+                                cbar_kws = {"label": "Fold Change", "orientation": "horizontal"}, cbar_pos = (0.6, 0.9, 0.3, 0.025))
 
     if(not significant_biomarkers_only):        # reduce font size of biomarkers so they don't overlap
         clustermap.ax_heatmap.set_yticklabels(clustermap.ax_heatmap.get_ymajorticklabels(), fontsize = 6)
 
     # plots colorbars for p-values and biomarkers onto the figure
-    exposure_ax = clustermap.figure.add_axes([0.2, 0.9, 0.6, 0.025])                                # add a new axes onto the figure for the colorbar
+    exposure_ax = clustermap.figure.add_axes([0.2, 0.9, 0.3, 0.025])                                # add a new axes onto the figure for the colorbar
     exposure_cbar = plt.colorbar(mappable = exposure_mapper, cax = exposure_ax,                     # create a new color bar using the mapper
                                  orientation = "horizontal", label = f"{sort_via} Exposure")        # corresponding to that colorbar
 
-    pval_ax = clustermap.figure.add_axes([0.94, 0.525, 0.015, 0.275])
+    pval_ax = clustermap.figure.add_axes([0.05, 0.85, 0.02, 0.1])
     pval_cbar = plt.colorbar(mappable = pval_mapper, cax = pval_ax,
                             orientation = "vertical", label = f"{sort_via} p-values")
 
-    rho_ax = clustermap.figure.add_axes([0.94, 0.2, 0.015, 0.275])
+    rho_ax = clustermap.figure.add_axes([0.1, 0.85, 0.02, 0.1])
     rho_cbar = plt.colorbar(mappable = rho_mapper, cax = rho_ax, orientation = "vertical",
                             label = rf"{sort_via} Spearman's $\rho$ values")
 
     # add title to the figure
     clustermap.figure.suptitle(f"Biomarker Fold Change\n{title_str}", fontsize = "xx-large")
 
-    # NOTE: this is a very bad workaround but it'll do for now
-    manager = plt.get_current_fig_manager()                         # get display manager
-    manager.full_screen_toggle()                                    # set the figure to be displayed on fullscreen
     plt.show()                                                      # show the image
-
+    plt.close("all")
     return
 
 def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
                     significant_biomarkers_only: bool = False, max_pval: float | None = None) -> None:
     """
     Saves a clustered heatmap from the dataset
-    NOTE: will flash a screen when saving the image
     
     Parameters
     ----------
@@ -175,7 +172,7 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     save_dir = f"heatmap_change{markers}wk_{''.join(sort_via.split())}" # ex: heatmap_change20wk_TAT4wk
 
     # read in our datasets
-    val_df = pd.read_csv("modified_data/fold_change_no_outliers.csv")   # contains fold change data per patient and biomarker
+    val_df = pd.read_csv(fold_change_path)                              # contains fold change data per patient and biomarker
     pval_df = pd.read_csv("modified_data/rho_pvals.csv")                # contains p-values of biomarkers per metric
 
     if(primary_only):
@@ -266,22 +263,22 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     # NOTE: scipy must be installed for sns.clustermap to work
     clustermap = sns.clustermap(df_plot, metric = "seuclidean", row_cluster = True, col_cluster = False, linewidth = 0.5,
                                 row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "seismic",
-                                xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1,
-                                cbar_kws = {"label": "Fold Change"}, cbar_pos = (0.89, 0.2, 0.015, 0.6))
+                                xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1, figsize=(20, 12),
+                                cbar_kws = {"label": "Fold Change", "orientation": "horizontal"}, cbar_pos = (0.6, 0.9, 0.3, 0.025))
 
     if(not significant_biomarkers_only):        # reduce font size of biomarkers so they don't overlap
-        clustermap.ax_heatmap.set_yticklabels(clustermap.ax_heatmap.get_ymajorticklabels(), fontsize = 6)   
+        clustermap.ax_heatmap.set_yticklabels(clustermap.ax_heatmap.get_ymajorticklabels(), fontsize = 6)
 
     # plots colorbars for p-values and biomarkers onto the figure
-    exposure_ax = clustermap.figure.add_axes([0.2, 0.9, 0.6, 0.025])                                # add a new axes onto the figure for the colorbar
+    exposure_ax = clustermap.figure.add_axes([0.2, 0.9, 0.3, 0.025])                                # add a new axes onto the figure for the colorbar
     exposure_cbar = plt.colorbar(mappable = exposure_mapper, cax = exposure_ax,                     # create a new color bar using the mapper
                                  orientation = "horizontal", label = f"{sort_via} Exposure")        # corresponding to that colorbar
 
-    pval_ax = clustermap.figure.add_axes([0.94, 0.525, 0.015, 0.275])
+    pval_ax = clustermap.figure.add_axes([0.05, 0.85, 0.02, 0.1])
     pval_cbar = plt.colorbar(mappable = pval_mapper, cax = pval_ax,
                             orientation = "vertical", label = f"{sort_via} p-values")
 
-    rho_ax = clustermap.figure.add_axes([0.94, 0.2, 0.015, 0.275])
+    rho_ax = clustermap.figure.add_axes([0.1, 0.85, 0.02, 0.1])
     rho_cbar = plt.colorbar(mappable = rho_mapper, cax = rho_ax, orientation = "vertical",
                             label = rf"{sort_via} Spearman's $\rho$ values")
 
@@ -289,15 +286,11 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     clustermap.figure.suptitle(f"Biomarker Fold Change\n{title_str}", fontsize = "xx-large")
 
     save_dir += ".png"
+    clustermap.figure.savefig(save_dir, dpi=200)
+    plt.close("all")
+    return
 
-    # NOTE: this is a very bad workaround but it'll do for now
-    manager = plt.get_current_fig_manager()                         # get display manager
-    manager.full_screen_toggle()                                    # set the figure to be displayed on fullscreen
-    plt.show(block = False)                                         # show the image briefly (this is the workaround)
-    plt.close()                                                     # immediately close the image
-    clustermap.savefig(save_dir)                                    # save the image (which now has the correct dimensions)
-
-def save_all_clustermaps():
+def save_all_clustermaps(pval = 0.05):
     metrics = ["TAT 4 wk", "TAT 20 wk", "Cmax", "Cmax4"]            # possible metrics to use
     markers = ["4", "20"]                                           # week of metrics taken
 
@@ -308,8 +301,10 @@ def save_all_clustermaps():
             save_clustermap(sort_via = metric, primary_only = True, separate_biomarkers = True, markers = marker,
                             significant_biomarkers_only = False, max_pval = None)
             save_clustermap(sort_via = metric, primary_only = False, separate_biomarkers = True, markers = marker,
-                            significant_biomarkers_only = True, max_pval = 0.05)
+                            significant_biomarkers_only = True, max_pval = pval)
             save_clustermap(sort_via = metric, primary_only = True, separate_biomarkers = True, markers = marker,
-                            significant_biomarkers_only = True, max_pval = 0.05)
+                            significant_biomarkers_only = True, max_pval = pval)
     
     return
+
+display_clustermap("TAT 4 wk", separate_biomarkers=True, markers="4")
