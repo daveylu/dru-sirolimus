@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # markers = ["4", "20"]                                             # week of metrics taken
 
 plt.rcParams['text.usetex'] = True                                  # enables LaTeX
-fold_change_path = "modified_data/scaled_fold_change_no_outliers.csv"
+fold_change_path = "modified_data/standardscaled_fold_change_no_outliers.csv"
 
 def display_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
                        significant_biomarkers_only: bool = False, max_pval: float | None = None) -> None:
@@ -266,7 +266,7 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     # NOTE: scipy must be installed for sns.clustermap to work
     clustermap = sns.clustermap(df_plot, metric = "seuclidean", row_cluster = True, col_cluster = False, linewidth = 0.5,
                                 row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "plasma",
-                                xticklabels = True, yticklabels = True, vmin = 0, vmax = 1, center = 0.5, figsize=(20, 12),
+                                xticklabels = True, yticklabels = True, figsize=(20, 12), #vmin = 0, vmax = 1, center = 0.5, 
                                 cbar_kws = {"label": "Scaled Fold Change", "orientation": "horizontal"},
                                 cbar_pos = (0.6, 0.9, 0.3, 0.025))
 
@@ -305,9 +305,8 @@ def save_all_clustermaps(pval = 0.05):
                             significant_biomarkers_only = False, max_pval = None)
             save_clustermap(sort_via = metric, primary_only = True, separate_biomarkers = True, markers = marker,
                             significant_biomarkers_only = False, max_pval = None)
-            if(metric != "Cmax" and marker != "20"):    # breaks the clustering so we ignore it lol
-                save_clustermap(sort_via = metric, primary_only = False, separate_biomarkers = True, markers = marker,
-                                significant_biomarkers_only = True, max_pval = pval)
+            save_clustermap(sort_via = metric, primary_only = False, separate_biomarkers = True, markers = marker,
+                            significant_biomarkers_only = True, max_pval = pval)
             save_clustermap(sort_via = metric, primary_only = True, separate_biomarkers = True, markers = marker,
                             significant_biomarkers_only = True, max_pval = pval)
     
