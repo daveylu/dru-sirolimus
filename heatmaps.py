@@ -286,7 +286,7 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     clustermap.figure.suptitle(f"Biomarker Fold Change\n{title_str}", fontsize = "xx-large")
 
     save_dir += ".png"
-    clustermap.figure.savefig(save_dir, dpi=200)
+    clustermap.figure.savefig(save_dir, dpi=400)
     plt.close("all")
     return
 
