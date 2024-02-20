@@ -1,3 +1,6 @@
 - [x] add code to automatically save all variations
 - [x] create graphs with only significant biomarkers (p-value < 0.05)
-- [ ] add some lines to the correlation matrices to make it easier to see blocks of interest
+- [x] add some lines to the correlation matrices to make it easier to see blocks of interest
+- [x] create graphs with only significant biomarkers (p-value < 0.25)
+- [x] get an numerical version of the correlation matrices (like an excel file)
+- [x] for R plots: find a way to increase size between each of the boxes

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # markers = ["4", "20"]                                             # week of metrics taken
 
 plt.rcParams['text.usetex'] = True                                  # enables LaTeX
-fold_change_path = "modified_data/standardscaled_fold_change_no_outliers.csv"
+fold_change_path = "modified_data/minmax_scaled_fold_change_no_outliers.csv"
 
 def display_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
                        significant_biomarkers_only: bool = False, max_pval: float | None = None) -> None:
@@ -300,7 +300,6 @@ def save_all_clustermaps(pval = 0.05):
 
     for metric in metrics:
         for marker in markers:
-            print(metric, marker)
             save_clustermap(sort_via = metric, primary_only = False, separate_biomarkers = True, markers = marker,
                             significant_biomarkers_only = False, max_pval = None)
             save_clustermap(sort_via = metric, primary_only = True, separate_biomarkers = True, markers = marker,
@@ -312,4 +311,4 @@ def save_all_clustermaps(pval = 0.05):
     
     return
 
-save_all_clustermaps()
+save_all_clustermaps(pval=0.25)
