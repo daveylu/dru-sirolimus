@@ -4,3 +4,4 @@
 - [x] create graphs with only significant biomarkers (p-value < 0.25)
 - [x] get an numerical version of the correlation matrices (like an excel file)
 - [x] for R plots: find a way to increase size between each of the boxes
+- [ ] check if you need to sort correlation matrix by metric before performing spearman's r test
