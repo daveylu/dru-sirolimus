@@ -54,8 +54,7 @@ df_20wk_foldchange = df_20wk.loc[:, is_foldchange]
 
 df = pd.merge(df_base, df_4wk_change, how="inner", on="patid")
 df = pd.merge(df, df_20wk_change, how="inner", on="patid")
-df = pd.merge(df, df_20wk_change, how="inner", on="patid")
 df = pd.merge(df, df_4wk_foldchange, how="inner", on="patid")
 df = pd.merge(df, df_20wk_foldchange, how="inner", on="patid")
 
-df.to_csv("modified_data/data.csv")
+df.to_csv("modified_data/data.csv", index=False)
