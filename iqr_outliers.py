@@ -7,8 +7,8 @@ df = df.iloc[:, 6:]
 col_names = list(df.columns)
 
 a = df.to_numpy()
-min = np.percentile(a, q = 10, axis = 0)
-max = np.percentile(a, q = 90, axis = 0)
+min = np.percentile(a, q = 2.5, axis = 0)
+max = np.percentile(a, q = 97.5, axis = 0)
 
 low_outliers = a < min
 high_outliers = a > max
