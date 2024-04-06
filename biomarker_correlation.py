@@ -48,7 +48,7 @@ mask = np.triu(mask)
 
 fig = sns.clustermap(corr_df, row_cluster = True, col_cluster = True, cmap = "seismic",
                    xticklabels = True, yticklabels = True, linewidth = 1,
-                   cbar_kws = {"label": "Spearman's rho"}, vmin = -1, vmax = 1,
+                   cbar_kws = {"label": r"Spearman's $\rho$"}, vmin = -1, vmax = 1,
                    cbar_pos = [0.85, 0.85, 0.05, 0.1], figsize = (14, 14))
 
 fig.ax_heatmap.set_xticklabels(fig.ax_heatmap.get_xmajorticklabels(), fontsize = 5)     # decrease font size
