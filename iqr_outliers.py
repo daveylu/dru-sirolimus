@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("modified_data/fold_change.csv")
+df = pd.read_csv("modified_data/fold_change_no_tinyvals.csv")
 head = df.iloc[:, 0:6]
 df = df.iloc[:, 6:]
 col_names = list(df.columns)
