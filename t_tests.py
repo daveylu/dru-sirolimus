@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
-from scipy.stats import ttest_ind as ttest
-
-ttest_equal_var = True
+from scipy.stats import ttest_rel
 
 data = pd.read_csv("./modified_data/data.csv")
 
@@ -40,8 +38,8 @@ for biomarker in biomarkers:
     wk20_data = data[wk20].to_numpy()
 
     # performing the t-tests
-    wk4_result = ttest(base_data, wk4_data, equal_var=ttest_equal_var)
-    wk20_result = ttest(base_data, wk20_data, equal_var=ttest_equal_var)
+    wk4_result = ttest_rel(base_data, wk4_data)
+    wk20_result = ttest_rel(base_data, wk20_data)
 
     # appending results to our lists
     names.append(wk4)
