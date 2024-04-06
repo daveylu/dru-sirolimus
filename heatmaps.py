@@ -85,7 +85,7 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     exposure = val_df[sort_via]                                         # extract pd.Series of exposure metrics
 
     df_plot = val_df.transpose()                                        # transpose our dataframe: a column is now a patient
-    df_plot.columns = df_plot.iloc[0]                                   # set our column labels to be our patient IDs
+    df_plot.columns = df_plot.iloc[0].astype(int)                       # set our column labels to be our patient IDs
     df_plot = df_plot.iloc[2:]                                          # get rid of the patient IDs row and exposure metric rows
 
     # create objects for coloring patient exposure, p-values, and rho values
@@ -231,11 +231,11 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     exposure = val_df[sort_via]                                         # extract pd.Series of exposure metrics
 
     df_plot = val_df.transpose()                                        # transpose our dataframe: a column is now a patient
-    df_plot.columns = df_plot.iloc[0]                                   # set our column labels to be our patient IDs
+    df_plot.columns = df_plot.iloc[0].astype(int)                       # set our column labels to be our patient IDs
     df_plot = df_plot.iloc[2:]                                          # get rid of the patient IDs row and exposure metric rows
 
     # create objects for coloring patient exposure, p-values, and rho values
-    exposure_cmap = sns.color_palette("plasma", as_cmap = True)                                                      # create exposure colormap (cmap) object
+    exposure_cmap = sns.color_palette("plasma", as_cmap = True)                                                     # create exposure colormap (cmap) object
     exposure_norm = matplotlib.colors.Normalize(vmin = exposure.min(), vmax = exposure.max())                       # create exposure normalizer 
     exposure_mapper = matplotlib.cm.ScalarMappable(norm = exposure_norm, cmap = exposure_cmap) #type: ignore        # create mapper which takes in a patient's exposure and outputs a color
     exposure_colors = [exposure_mapper.to_rgba(pat) for pat in exposure]                                            # create list of colors, from lowest exposure to highest
