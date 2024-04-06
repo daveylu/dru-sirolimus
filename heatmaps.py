@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 # metrics = ["TAT 4 wk", "TAT 20 wk", "Cmax", "Cmax4"]              # possible metrics to use
 # markers = ["4", "20"]                                             # week of metrics taken
 
-plt.rcParams['text.usetex'] = True                                  # enables LaTeX
-fold_change_path = "modified_data/fold_change_no_outliers.csv"
+fold_change_path = "modified_data/fold_change.csv"
 
 def display_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
                        significant_biomarkers_only: bool = False, max_pval: float | None = None) -> None:
@@ -42,23 +41,27 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     if(primary_only):
         val_df = val_df[val_df["in_primary"] == 1]                      # only use patients in the primary group by filtering out non-primary patients
         title_str = "Primary Group Only"
+        pval_col_name = "pval_primary"                                  # used to grab the correct p-values and rho values
+        rho_col_name = "rho_primary"
     else:
         title_str = "Primary and Secondary Groups"
+        pval_col_name = "pval_both"
+        rho_col_name = "rho_both"
 
 
     # sort and extract relevant p-value data
     pval_df = pval_df[pval_df["exposure"] == sort_via]                  # find p-vals corresponding to the metric we want to sort by
 
     if(significant_biomarkers_only):                                    # only want to look at biomarkers that are significant
-        pval_df = pval_df[pval_df["pval"] < max_pval]                   # keep rows with p-values below the level we choose
+        pval_df = pval_df[pval_df[pval_col_name] < max_pval]                   # keep rows with p-values below the level we choose
         biomarkers_to_keep = list(pval_df["biomarker"])                 # get list of the biomarkers that match this criteria
         patient_info_df = val_df.iloc[:, 0:6]
         val_df = val_df.loc[:, biomarkers_to_keep]                      # only keep the data from the biomarkers that matched criteria
         val_df = pd.concat([patient_info_df, val_df], axis = 1)
 
-    pval_df = pval_df.sort_values(by = ["pval"])                        # sort p-vals from lowest to highest
-    p_vals = pval_df["pval"]                                            # extract pd.Series of sorted p-values
-    rhos = pval_df["rho"]                                               # extract pd.Series of rho values
+    pval_df = pval_df.sort_values(by = [pval_col_name])                        # sort p-vals from lowest to highest
+    p_vals = pval_df[pval_col_name]                                            # extract pd.Series of sorted p-values
+    rhos = pval_df[rho_col_name]                                               # extract pd.Series of rho values
 
     # keep biomarkers as determined by the flag if we want to separate them: 4 week or 20 week
     if(separate_biomarkers == True):
@@ -86,7 +89,7 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     df_plot = df_plot.iloc[2:]                                          # get rid of the patient IDs row and exposure metric rows
 
     # create objects for coloring patient exposure, p-values, and rho values
-    exposure_cmap = sns.color_palette("flare", as_cmap = True)                                                      # create exposure colormap (cmap) object
+    exposure_cmap = sns.color_palette("plasma", as_cmap = True)                                                     # create exposure colormap (cmap) object
     exposure_norm = matplotlib.colors.Normalize(vmin = exposure.min(), vmax = exposure.max())                       # create exposure normalizer 
     exposure_mapper = matplotlib.cm.ScalarMappable(norm = exposure_norm, cmap = exposure_cmap) #type: ignore        # create mapper which takes in a patient's exposure and outputs a color
     exposure_colors = [exposure_mapper.to_rgba(pat) for pat in exposure]                                            # create list of colors, from lowest exposure to highest
@@ -119,7 +122,7 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     # clustering: hierarchal clustering w/ standardized euclidean distance used
     # NOTE: scipy must be installed for sns.clustermap to work
     clustermap = sns.clustermap(df_plot, metric = "seuclidean", row_cluster = True, col_cluster = False, linewidth = 0.5,
-                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "seismic",
+                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "flare_r",
                                 xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1, figsize=(20, 12),
                                 cbar_kws = {"label": "Fold Change", "orientation": "horizontal"}, cbar_pos = (0.6, 0.9, 0.3, 0.025))
 
@@ -179,16 +182,19 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
         val_df = val_df[val_df["in_primary"] == 1]                      # only use patients in the primary group by filtering out non-primary patients
         title_str = "Primary Group Only"
         save_dir += "_primary"
+        pval_col_name = "pval_primary"                                  # used to grab the correct p-values and rho values
+        rho_col_name = "rho_primary"
     else:
         title_str = "Primary and Secondary Groups"
         save_dir += "_both"
-
+        pval_col_name = "pval_both"
+        rho_col_name = "rho_both"
 
     # sort and extract relevant p-value data
     pval_df = pval_df[pval_df["exposure"] == sort_via]                  # find p-vals corresponding to the metric we want to sort by
 
     if(significant_biomarkers_only):                                    # only want to look at biomarkers that are significant
-        pval_df = pval_df[pval_df["pval"] < max_pval]                   # keep rows with p-values below the level we choose
+        pval_df = pval_df[pval_df[pval_col_name] < max_pval]            # keep rows with p-values below the level we choose
         biomarkers_to_keep = list(pval_df["biomarker"])                 # get list of the biomarkers that match this criteria
         patient_info_df = val_df.iloc[:, 0:6]
         val_df = val_df.loc[:, biomarkers_to_keep]                      # only keep the data from the biomarkers that matched criteria
@@ -199,9 +205,9 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     else:
         save_dir = "figures/heatmap_all/" + save_dir
 
-    pval_df = pval_df.sort_values(by = ["pval"])                        # sort p-vals from lowest to highest
-    p_vals = pval_df["pval"]                                            # extract pd.Series of sorted p-values
-    rhos = pval_df["rho"]                                               # extract pd.Series of rho values
+    pval_df = pval_df.sort_values(by = [pval_col_name])                 # sort p-vals from lowest to highest
+    p_vals = pval_df[pval_col_name]                                     # extract pd.Series of sorted p-values
+    rhos = pval_df[rho_col_name]                                        # extract pd.Series of rho values
 
     # keep biomarkers as determined by the flag if we want to separate them: 4 week or 20 week
     if(separate_biomarkers == True):
@@ -229,7 +235,7 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     df_plot = df_plot.iloc[2:]                                          # get rid of the patient IDs row and exposure metric rows
 
     # create objects for coloring patient exposure, p-values, and rho values
-    exposure_cmap = sns.color_palette("flare", as_cmap = True)                                                      # create exposure colormap (cmap) object
+    exposure_cmap = sns.color_palette("plasma", as_cmap = True)                                                      # create exposure colormap (cmap) object
     exposure_norm = matplotlib.colors.Normalize(vmin = exposure.min(), vmax = exposure.max())                       # create exposure normalizer 
     exposure_mapper = matplotlib.cm.ScalarMappable(norm = exposure_norm, cmap = exposure_cmap) #type: ignore        # create mapper which takes in a patient's exposure and outputs a color
     exposure_colors = [exposure_mapper.to_rgba(pat) for pat in exposure]                                            # create list of colors, from lowest exposure to highest
@@ -262,7 +268,7 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     # clustering: hierarchal clustering w/ standardized euclidean distance used
     # NOTE: scipy must be installed for sns.clustermap to work
     clustermap = sns.clustermap(df_plot, metric = "seuclidean", row_cluster = True, col_cluster = False, linewidth = 0.5,
-                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "seismic",
+                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "flare_r",
                                 xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1, figsize=(20, 12),
                                 cbar_kws = {"label": "Fold Change", "orientation": "horizontal"}, cbar_pos = (0.6, 0.9, 0.3, 0.025))
 
@@ -308,3 +314,4 @@ def save_all_clustermaps(pval = 0.05):
     return
 
 display_clustermap("TAT 4 wk", separate_biomarkers=True, markers="4")
+# save_all_clustermaps(pval = 0.05)

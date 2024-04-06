@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 # metrics = ["TAT 4 wk", "TAT 20 wk", "Cmax", "Cmax4"]              # possible metrics to use
 # markers = ["4", "20"]                                             # week of metrics taken
 
-plt.rcParams['text.usetex'] = True                                  # enables LaTeX
 fold_change_path = "modified_data/minmax_scaled_fold_change_no_outliers.csv"
 
 def display_clustermap(sort_via: str, primary_only: bool = False, separate_biomarkers: bool = False, markers: str | None = None,
@@ -42,23 +41,27 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     if(primary_only):
         val_df = val_df[val_df["in_primary"] == 1]                      # only use patients in the primary group by filtering out non-primary patients
         title_str = "Primary Group Only"
+        pval_col_name = "pval_primary"                                  # used to grab the correct p-values and rho values
+        rho_col_name = "rho_primary"
     else:
         title_str = "Primary and Secondary Groups"
+        pval_col_name = "pval_both"
+        rho_col_name = "rho_both"
 
 
     # sort and extract relevant p-value data
     pval_df = pval_df[pval_df["exposure"] == sort_via]                  # find p-vals corresponding to the metric we want to sort by
 
     if(significant_biomarkers_only):                                    # only want to look at biomarkers that are significant
-        pval_df = pval_df[pval_df["pval"] < max_pval]                   # keep rows with p-values below the level we choose
+        pval_df = pval_df[pval_df[pval_col_name] < max_pval]                   # keep rows with p-values below the level we choose
         biomarkers_to_keep = list(pval_df["biomarker"])                 # get list of the biomarkers that match this criteria
         patient_info_df = val_df.iloc[:, 0:6]
         val_df = val_df.loc[:, biomarkers_to_keep]                      # only keep the data from the biomarkers that matched criteria
         val_df = pd.concat([patient_info_df, val_df], axis = 1)
 
-    pval_df = pval_df.sort_values(by = ["pval"])                        # sort p-vals from lowest to highest
-    p_vals = pval_df["pval"]                                            # extract pd.Series of sorted p-values
-    rhos = pval_df["rho"]                                               # extract pd.Series of rho values
+    pval_df = pval_df.sort_values(by = [pval_col_name])                        # sort p-vals from lowest to highest
+    p_vals = pval_df[pval_col_name]                                            # extract pd.Series of sorted p-values
+    rhos = pval_df[rho_col_name]                                              # extract pd.Series of rho values
 
     # keep biomarkers as determined by the flag if we want to separate them: 4 week or 20 week
     if(separate_biomarkers == True):
@@ -182,16 +185,19 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
         val_df = val_df[val_df["in_primary"] == 1]                      # only use patients in the primary group by filtering out non-primary patients
         title_str = "Primary Group Only"
         save_dir += "_primary"
+        pval_col_name = "pval_primary"                                  # used to grab the correct p-values and rho values
+        rho_col_name = "rho_primary"
     else:
         title_str = "Primary and Secondary Groups"
         save_dir += "_both"
-
+        pval_col_name = "pval_both"
+        rho_col_name = "rho_both"
 
     # sort and extract relevant p-value data
     pval_df = pval_df[pval_df["exposure"] == sort_via]                  # find p-vals corresponding to the metric we want to sort by
 
     if(significant_biomarkers_only):                                    # only want to look at biomarkers that are significant
-        pval_df = pval_df[pval_df["pval"] < max_pval]                   # keep rows with p-values below the level we choose
+        pval_df = pval_df[pval_df[pval_col_name] < max_pval]            # keep rows with p-values below the level we choose
         biomarkers_to_keep = list(pval_df["biomarker"])                 # get list of the biomarkers that match this criteria
         patient_info_df = val_df.iloc[:, 0:6]
         val_df = val_df.loc[:, biomarkers_to_keep]                      # only keep the data from the biomarkers that matched criteria
@@ -202,9 +208,9 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     else:
         save_dir = "figures/heatmap_all/" + save_dir
 
-    pval_df = pval_df.sort_values(by = ["pval"])                        # sort p-vals from lowest to highest
-    p_vals = pval_df["pval"]                                            # extract pd.Series of sorted p-values
-    rhos = pval_df["rho"]                                               # extract pd.Series of rho values
+    pval_df = pval_df.sort_values(by = [pval_col_name])                 # sort p-vals from lowest to highest
+    p_vals = pval_df[pval_col_name]                                     # extract pd.Series of sorted p-values
+    rhos = pval_df[rho_col_name]                                        # extract pd.Series of rho values
 
     # keep biomarkers as determined by the flag if we want to separate them: 4 week or 20 week
     if(separate_biomarkers == True):
