@@ -1,7 +1,16 @@
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("modified_data/combined_data.csv")
+cd_df = pd.read_csv("./modified_data/cd4cd8_data.csv")
+nuc_df = pd.read_csv("./modified_data/rna_dna_data.csv")
+solubles_df = pd.read_csv("./modified_data/soluble_biomarker_data.csv")
+unstim_df = pd.read_csv("./modified_data/unstim_flow_data.csv")
+stim_df = pd.read_csv("./modified_data/stim_flow_data.csv")
+
+df = pd.merge(cd_df, nuc_df, how="inner", on=["patid", "rxcalwk"])
+df = pd.merge(df, solubles_df, how="inner", on=["patid", "rxcalwk"])
+df = pd.merge(df, unstim_df, how="inner", on=["patid", "rxcalwk"])
+df = pd.merge(df, stim_df, how="inner", on=["patid", "rxcalwk"])
 
 df_4wk = df[df["rxcalwk"] == 4]
 df_20wk = df[df["rxcalwk"] == 20]
