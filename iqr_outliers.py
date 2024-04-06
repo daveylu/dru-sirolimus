@@ -26,4 +26,4 @@ for i in range(rows):
 
 new_df = pd.DataFrame(a, columns = col_names)
 df = pd.concat([head, new_df], axis = 1)
-df.to_excel("modified_data/fold_change_no_outliers.xlsx", index = False)
+df.to_csv("modified_data/fold_change_no_outliers.csv", index = False)
