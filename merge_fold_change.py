@@ -49,4 +49,4 @@ df_20wk = df_20wk.rename(mapper = relabel_20wk, axis = 1)
 
 df = pd.merge(df_4wk, df_20wk, on = "patid")
 
-df.to_csv("./modified_data/fold_change.csv")
+df.to_csv("./modified_data/fold_change.csv", index=False)

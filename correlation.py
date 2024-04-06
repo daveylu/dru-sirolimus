@@ -31,4 +31,4 @@ for metric in exposures:
 
     save = pd.concat([save, temp], axis = 0)
 
-save.to_csv("./modified_data/temp.csv", index=False)
+save.to_csv("./modified_data/rho_pvals.csv", index=False)
