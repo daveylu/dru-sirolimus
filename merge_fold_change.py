@@ -13,19 +13,22 @@ def relabel_20wk(col_label):
     else:
         return col_label
 
-rna_dna = "./modified_data/rna_dna_data.xlsx"
-solubles = "./modified_data/soluble_biomarker_data.xlsx"
-unstim = "./modified_data/unstim_flow_data.xlsx"
-cd = "./modified_data/cd4cd8_data.xlsx"
-stim = "./modified_data/stim_flow_data.xlsx"
+cd_path = "./modified_data/cd4cd8_data.csv"
+cd_df = pd.read_csv(cd_path)
 
-nuc_df = pd.read_excel(rna_dna, sheet_name = "Data")
-sol_df = pd.read_excel(solubles, sheet_name = "Data")
-cd_df = pd.read_excel(cd, sheet_name = "Data")
-unstim_df = pd.read_excel(unstim, sheet_name = "Data")
-stim_df = pd.read_excel(stim, sheet_name = "Data")
+nuc_path = "./modified_data/rna_dna_data.csv"
+nuc_df = pd.read_csv(nuc_path)
 
-df = pd.merge(nuc_df, sol_df, on = ["patid", "rxcalwk"])
+solubles_path = "./modified_data/soluble_biomarker_data.csv"
+solubles_df = pd.read_csv(solubles_path)
+
+unstim_path = "./modified_data/unstim_flow_data.csv"
+unstim_df = pd.read_csv(unstim_path)
+
+stim_path = "./modified_data/stim_flow_data.csv"
+stim_df = pd.read_csv(stim_path)
+
+df = pd.merge(nuc_df, solubles_df, on = ["patid", "rxcalwk"])
 df = pd.merge(df, cd_df, on = ["patid", "rxcalwk"])
 df = pd.merge(df, unstim_df, on = ["patid", "rxcalwk"])
 df = pd.merge(df, stim_df, on = ["patid", "rxcalwk"])
@@ -46,4 +49,4 @@ df_20wk = df_20wk.rename(mapper = relabel_20wk, axis = 1)
 
 df = pd.merge(df_4wk, df_20wk, on = "patid")
 
-df.to_excel("./modified_data/temp.xlsx")
+df.to_csv("./modified_data/fold_change.csv")
