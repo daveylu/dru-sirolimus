@@ -122,7 +122,7 @@ def display_clustermap(sort_via: str, primary_only: bool = False, separate_bioma
     # clustering: hierarchal clustering w/ standardized euclidean distance used
     # NOTE: scipy must be installed for sns.clustermap to work
     clustermap = sns.clustermap(df_plot, metric = "seuclidean", row_cluster = True, col_cluster = False, linewidth = 0.5,
-                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "flare_r",
+                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "seismic",
                                 xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1, figsize=(20, 12),
                                 cbar_kws = {"label": "Fold Change", "orientation": "horizontal"}, cbar_pos = (0.6, 0.9, 0.3, 0.025))
 
@@ -268,7 +268,7 @@ def save_clustermap(sort_via: str, primary_only: bool = False, separate_biomarke
     # clustering: hierarchal clustering w/ standardized euclidean distance used
     # NOTE: scipy must be installed for sns.clustermap to work
     clustermap = sns.clustermap(df_plot, metric = "seuclidean", row_cluster = True, col_cluster = False, linewidth = 0.5,
-                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "flare_r",
+                                row_colors = row_color_palette, col_colors = patient_color_palette, cmap = "seismic",
                                 xticklabels = True, yticklabels = True, vmin = 0, vmax = 2, center = 1, figsize=(20, 12),
                                 cbar_kws = {"label": "Fold Change", "orientation": "horizontal"}, cbar_pos = (0.6, 0.9, 0.3, 0.025))
 
